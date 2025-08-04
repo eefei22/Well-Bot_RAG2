@@ -1,0 +1,7 @@
+# .\well-bot_venv\Scripts\Activate.ps1
+# ask chatGPT how to permanently add ollama to venv 
+# python.exe -m pip install --upgrade pip
+# ollama pull zephyr (or any other model,but change the model name in RAG.py)
+
+haystack-ai
+ollama-haystack

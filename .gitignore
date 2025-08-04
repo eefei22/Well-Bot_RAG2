@@ -11,3 +11,6 @@ well-bot_venv/
 # Environment variables
 .env
 .env.*
+
+# vector storage
+qdrant_store/

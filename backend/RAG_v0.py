@@ -2,6 +2,10 @@ from haystack.components.builders import ChatPromptBuilder
 from haystack_integrations.components.generators.ollama import OllamaChatGenerator
 from haystack.dataclasses import ChatMessage
 from haystack import Pipeline
+from retriever import retrieve_top_document
+
+user_query = input("Your Message: ")
+context = retrieve_top_document(user_query)
 
 prompt_builder = ChatPromptBuilder()
 generator = OllamaChatGenerator(model="deepseek-r1",
@@ -15,20 +19,18 @@ pipe = Pipeline()
 pipe.add_component("prompt_builder", prompt_builder)
 pipe.add_component("llm", generator)
 pipe.connect("prompt_builder.prompt", "llm.messages")
-location = "Malaysia"
 
 messages = [
     ChatMessage.from_system(
-        "do not ever use emojis"
+        "Do not ever use emojis"
         "Use a friendly and empathetic tone in all replies."
+        "Extra context" + context
     ),
-    ChatMessage.from_user(input("Your Message: "))
+    ChatMessage.from_user(user_query)
 ]
-
 result = pipe.run(
     data={
         "prompt_builder": {
-            "template_variables": {"location": location},
             "template": messages
         }
     }

@@ -8,3 +8,4 @@ ollama-haystack
 fastembed-haystack
 pyarrow
 nltk
+qdrant-client

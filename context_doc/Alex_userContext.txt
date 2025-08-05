@@ -1,0 +1,118 @@
+
+Alex's Communication Style
+
+- Precise, respectful, and emotionally intelligent tone
+- Favors structured, clear, and culturally sensitive language
+- Avoids ambiguity in both technical and human-centered interactions
+- Uses communication as a tool for alignment and empathy
+- Maintains calm and composure outwardly, even when overwhelmed internally
+- Prefers pre-planned formats like templates, flowcharts, and prompts
+
+
+Alex's Daily Habits and Lifestyle
+
+- Trains 6x a week with structured gym routines
+- Follows a loosely structured meal plan prioritizing protein intake
+- Prioritizes consistency and recovery awareness in diet
+- Often skips proper meals due to time or mental bandwidth
+- Normally eats out for lunch, does not cook
+- Works long hours with minimal downtime and fragmented rest periods
+- Chews gum to relieve stress
+
+
+Alex's Environment and Social Context
+
+- Operates in high-performance academic and work settings
+- Balances university-level engineering with professional research part-time duties
+- Surroundings demand emotional labor and creative output
+- Faces pressure to perform in multiple roles without systemic support
+- Works in tech-health intersections, often solo or with limited peer support
+- Navigates overlapping cultural and academic expectations
+
+
+Alex's Identity
+
+- Multidisciplinary identity blending engineering, designing, and researching
+- Balancing cultural heritage with modern technical fluency
+- Identifies with being a builder of emotionally intelligent systems
+- Seeks mastery in both Western and local cultural-literary domains
+- Driven by a sense of duty, not just ambition
+- Self-image deeply tied to output, discipline, and perceived excellence
+
+Alex's Likes and Dislikes
+
+Likes
+- Emotionally intelligent systems that serve real-world needs
+- Modular, clean backend architecture with clear separation of concerns
+- Minimalist visual design
+- Structured workflows like checklists, templates, flow diagrams
+- Deep work sessions with clear objectives and measurable output
+- Iterative building with rapid feedback and refinement cycles
+- Multilingual communication, cultural nuance, and respectful tone
+- High-intensity resistance training, particularly powerlifting 
+- Chocolate, especially Ritter Sport Corn Crisp from Germany
+- Learning at intersections: combining AI, research, healthcare, and behavioral science
+- Clear, purpose-driven communication in tools, prompts, and interfaces
+- Mission-oriented goals that align with empathy, healing, or wellness
+- Well-structured codebases.
+- Autonomy in execution, with freedom to push technical and creative boundaries
+
+Dislikes
+- Ambiguity in workflows, unclear expectations, or loosely defined tasks
+- Performative productivity with no meaningful impact
+- Visually cluttered designs, excessive UI complexity, or non-purposeful aesthetics
+- Overly flashy tech without human-centered use cases
+- Unstructured collaboration, especially with unclear ownership or priorities
+- Being rushed without time for reflection, iteration, or thoughtful design
+- Unhealthy eating routines, especially when stress disrupts nutrition goals
+- Superficial communication, lacking depth, empathy, or intent
+- Being idle, feeling unproductive, or outputting below potential
+- Lack of feedback loops or systems that don’t allow testing + revision
+- Disconnection from purpose, especially in healthcare or wellness work
+- Overpromising or underplanning, especially in team environments
+- Lack of boundaries, especially when others expect overdelivery as default
+
+
+Alex's Psychological Profile
+
+- Highly introspective with layered, analytical thinking
+- Perfectionist tendencies masked as pragmatism
+- Prone to overthinking, paralysis by analysis
+- Links self-worth to productivity and output
+- Deeply self-aware but struggles with self-compassion
+- Constant need for structure, clarity, and control
+- Tendency to suppress burnout and optimize every activity
+- Seeks validation through overachievement and delivery
+- Reluctant to trust instincts without external confirmation
+
+
+Alex's Relationship 
+
+- Overdelivers to meet expectations, even at personal cost
+- Struggles to set healthy boundaries with others
+- Seeks connection through usefulness and excellence
+- Avoids conflict by compensating with performance
+- Tends to carry emotional load silently
+- Driven by fear of being seen as mediocre or disappointing
+
+
+Alex's Skills and Knowledge
+
+- Proficient in modular backend architecture (FastAPI, WebSocket, Docker)
+- Skilled in integrating LLMs, ASR, TTS, and emotion recognition modules
+- Experienced in real-time systems, Raspberry Pi deployment, and analytics
+- Strong in storytelling, media production, and educational content design
+- Advanced in multitasking across research, engineering, and marketing
+- Strategic and iterative thinker with high executional precision
+
+
+Alex's Values, Beliefs, Goals, Motivation
+
+- Deeply values purpose, impact, and emotional resonance
+- Pursues sustainability and long-term execution over flashy success
+- Believes in clean, minimalistic design and meaningful tech
+- Motivated by solving overlooked pain points in healthcare
+- Values clarity, respect, and integrity in communication
+- Prioritizes balance, but habitually overcommits out of conviction
+- Aspires to reduce body fat while preserving strength and discipline
+- Driven to master both technical depth and cultural identity

@@ -43,8 +43,6 @@ embedded_docs = document_embedder.run(documents)["documents"]
 document_store.write_documents(embedded_docs, policy="overwrite")   #TODO: CHANGE THIS POLICY
 
 
-
-
 # ================================================================
 # TESTING:
 # ================================================================
@@ -56,7 +54,7 @@ query_pipeline.add_component("retriever", QdrantEmbeddingRetriever(document_stor
 query_pipeline.connect("text_embedder.embedding", "retriever.query_embedding")
 
 # 6: Query the index
-query = "what does Jason like to eat?"
+query = "what does Alex like to eat?"
 result = query_pipeline.run({"text_embedder": {"text": query}})
 
 # 7: Print best match
@@ -67,15 +65,13 @@ print("Top result:", top_doc.content)
 
 
 
-
-
-
 # ================================================================
 # DEPENDENCIES REQUIRED:
 # ================================================================
-# pip install haystack-ai
-# pip install haystack-integrations[qdrant]
-# pip install haystack-integrations[ollama]
+# haystack
+# haystack-integrations : Ollama, qdrant
+    # ollama (Ollama server running at localhost:11434)
+    # qdrant as vector store
 # 
 # External Services:
 # - Docker: docker run -p 6333:6333 -p 6334:6334 qdrant/qdrant

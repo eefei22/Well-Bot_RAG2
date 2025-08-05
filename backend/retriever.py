@@ -7,7 +7,7 @@ from haystack_integrations.document_stores.qdrant import QdrantDocumentStore
 document_store = QdrantDocumentStore(
     path="./qdrant_store",
     index="wellbot_index",
-    recreate_index=False,  # Set to False to avoid deleting your index every time
+    recreate_index=False,  #do not change 
     return_embedding=True,
     wait_result_from_api=True,
     embedding_dim=768,
@@ -27,3 +27,20 @@ def retrieve_top_document(user_query: str) -> str:
     result = query_pipeline.run({"text_embedder": {"text": user_query}})
     top_doc = result["retriever"]["documents"][0]
     return top_doc.content
+
+
+# ================================================================
+# DEPENDENCIES REQUIRED:
+# ================================================================
+# haystack
+# haystack-integrations: Ollama, qdrant
+#   ollama (Ollama server for embedding: localhost:11434)
+#   qdrant (Qdrant vector database)
+#
+# ================================================================
+# WORKFLOW SUMMARY:
+# ================================================================
+# 1. Initializes QdrantDocumentStore to connect to the local Qdrant vector DB.
+# 2. Uses OllamaTextEmbedder to embed user queries.
+# 3. Retrieves top matching document from Qdrant using QdrantEmbeddingRetriever.
+# 4. Exposes `retrieve_top_document` to return the content of the most relevant document for a given query.

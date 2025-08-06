@@ -1,28 +1,15 @@
 from haystack.components.builders import ChatPromptBuilder
 from haystack_integrations.components.generators.ollama import OllamaChatGenerator
 from haystack.dataclasses import ChatMessage
-from haystack import Pipeline, Document
+from haystack import Pipeline
 from retriever import retrieve_top_document
-from haystack_integrations.document_stores.qdrant import QdrantDocumentStore
-from datetime import datetime, timezone, timedelta
-import uuid
-
-# Setup document store for chat logs
-document_store = QdrantDocumentStore(
-    url="http://localhost:6333",
-    index="chat_history",
-    recreate_index=False,  # Keep existing history
-    return_embedding=True,
-    wait_result_from_api=True,
-    embedding_dim=768,
-    similarity="cosine"
-)
 
 # Initialize once outside the loop
 prompt_builder = ChatPromptBuilder()
 generator = OllamaChatGenerator(
     model="gemma3",
     url="http://localhost:11434", 
+    streaming_callback=lambda chunk: print(chunk.content, end="", flush=True),
     generation_kwargs={"temperature": 0.9},
 )
 
@@ -35,6 +22,7 @@ pipe.connect("prompt_builder.prompt", "llm.messages")
 print("\nWell-Bot: Hi there, how are you feeling today?")
 while True:
     user_query = input("\n\nYou: ")
+    print("\nWell-Bot: ")
     if user_query.lower() == "exit":
         print("Exiting chat.")
         break
@@ -56,17 +44,6 @@ while True:
     result = pipe.run(
         data={"prompt_builder": {"template": messages}}
     )
-
-    reply_text = result["llm"]["replies"][0].text
-    print("\n\nWell-Bot Copy:", reply_text)
-
-    now = datetime.now(timezone(timedelta(hours=8))).isoformat()
-    chat_docs = [
-        Document(content=user_query, meta={"role": "user", "timestamp": now}),
-        Document(content=reply_text, meta={"role": "assistant", "timestamp": now}),
-    ]
-
-    document_store.write_documents(chat_docs)
 
     # reply = result["llm"]["replies"][0].text
     # print("\nWell-Bot:", reply)

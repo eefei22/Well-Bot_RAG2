@@ -40,7 +40,7 @@ document_embedder = OllamaDocumentEmbedder()
 embedded_docs = document_embedder.run(documents)["documents"]
 
 # 4: Write embedded docs to Qdrant
-document_store.write_documents(embedded_docs, policy="overwrite")   #TODO: CHANGE THIS POLICY
+document_store.write_documents(embedded_docs, policy="overwrite")   #Everytime time run this embedder, will overwrite existing documents.
 
 
 # ================================================================

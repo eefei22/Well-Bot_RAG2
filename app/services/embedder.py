@@ -1,87 +1,34 @@
-from haystack import Document, Pipeline
-from haystack_integrations.components.embedders.ollama.document_embedder import OllamaDocumentEmbedder
-from haystack_integrations.components.embedders.ollama.text_embedder import OllamaTextEmbedder
-from haystack_integrations.document_stores.qdrant import QdrantDocumentStore
-from haystack_integrations.components.retrievers.qdrant import QdrantEmbeddingRetriever
+# app/services/embedder.py
 
-import os
-# need to run: docker run -p 6333:6333 -p 6334:6334 qdrant/qdrant
+from haystack import Document
+from haystack_integrations.document_stores.qdrant import QdrantDocumentStore
+from haystack_integrations.components.embedders.ollama.document_embedder import OllamaDocumentEmbedder
+import sys, os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+from app.config import settings
+
 
 def load_documents_from_folder(folder_path: str):
-    documents = []
-    for filename in os.listdir(folder_path):
-        if filename.endswith(".txt"):
-            file_path = os.path.join(folder_path, filename)
-            with open(file_path, "r", encoding="utf-8") as f:
-                content = f.read()
-                documents.append(Document(content=content, meta={"name": filename}))
-    return documents
+    docs = []
+    for fn in os.listdir(folder_path):
+        if fn.endswith(".txt"):
+            p = os.path.join(folder_path, fn)
+            with open(p, "r", encoding="utf-8") as f:
+                docs.append(Document(content=f.read(), meta={"name": fn, "source": fn}))
+    return docs
 
-
-# 1: Initialize Qdrant Document Store
-document_store = QdrantDocumentStore(
-    path="./qdrant_store",        # Local folder to persist vectors
-    index="wellbot_index",        
-    recreate_index=True,          
+store = QdrantDocumentStore(
+    url=settings.qdrant_url,
+    index=settings.qdrant_collection_docs,  # <- kb_docs
+    recreate_index=False,
     return_embedding=True,
     wait_result_from_api=True,
-    embedding_dim=768,            
-    similarity="cosine"
+    embedding_dim=settings.embedding_dim,
+    similarity=settings.embedding_similarity,
 )
 
-# 2: Create sample documents
-documents = load_documents_from_folder("./context_doc")
-for doc in documents:
-    print(f"Loaded: {doc.meta['name']} ({len(doc.content)} chars)")
-
-
-# 3: Embed documents using Ollama
-document_embedder = OllamaDocumentEmbedder()
-embedded_docs = document_embedder.run(documents)["documents"]
-
-# 4: Write embedded docs to Qdrant
-document_store.write_documents(embedded_docs, policy="overwrite")   #Everytime time run this embedder, will overwrite existing documents.
-
-
-# ================================================================
-# TESTING:
-# ================================================================
-
-# 5: Build retrieval pipeline
-query_pipeline = Pipeline()
-query_pipeline.add_component("text_embedder", OllamaTextEmbedder())
-query_pipeline.add_component("retriever", QdrantEmbeddingRetriever(document_store=document_store))
-query_pipeline.connect("text_embedder.embedding", "retriever.query_embedding")
-
-# 6: Query the index
-query = "what does Alex like to eat?"
-result = query_pipeline.run({"text_embedder": {"text": query}})
-
-# 7: Print best match
-top_doc = result["retriever"]["documents"][0]
-print("Top result:", top_doc.content)
-
-
-
-
-
-# ================================================================
-# DEPENDENCIES REQUIRED:
-# ================================================================
-# haystack
-# haystack-integrations : Ollama, qdrant
-    # ollama (Ollama server running at localhost:11434)
-    # qdrant as vector store
-# 
-# External Services:
-# - Docker: docker run -p 6333:6333 -p 6334:6334 qdrant/qdrant
-# - Ollama: Local LLM service for embeddings
-#
-# ================================================================
-# WORKFLOW SUMMARY:
-# ================================================================
-# Load → Read text documents from folder
-# Embed → Convert documents to vector embeddings using Ollama
-# Store → Save embeddings in Qdrant vector database
-# Query → Accept natural language questions
-# Retrieve → Find and return most relevant document content
+docs = load_documents_from_folder("./context_doc")
+embedder = OllamaDocumentEmbedder(model=settings.ollama_embed_model)  # 768-dim
+embedded = embedder.run(docs)["documents"]
+store.write_documents(embedded, policy="upsert")
+print(f"Indexed {len(embedded)} docs into {settings.qdrant_collection_docs}")

@@ -18,3 +18,5 @@ uvicorn
 pydantic-settings
 python-dotenv
 pymongo
+httpx
+

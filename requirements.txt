@@ -9,3 +9,12 @@ fastembed-haystack
 pyarrow
 nltk
 qdrant-client
+
+haystack-ai
+haystack-ai[integrations-qdrant,integrations-ollama]
+qdrant-client==1.15.1
+fastapi
+uvicorn
+pydantic-settings
+python-dotenv
+pymongo

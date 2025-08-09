@@ -10,41 +10,47 @@ Well-Bot_RAG/
 ├── requirements.txt              # Python dependencies
 ├── notes.txt                     # Development notes
 ├── FunctionalRequirement.md      # System functional requirements
-├── .gitignore                   # Git ignore rules
-├── context_doc/                 # Context documents for RAG
+├── .gitignore                    # Git ignore rules
+├── context_doc/                  # Context documents for RAG
 │   ├── Islamic_Bulletin.txt
 │   └── Alex_userContext.txt
-├── app/                        # FastAPI application
-│   ├── main.py                 # FastAPI entry point
-│   ├── config.py               # App configuration
+├── app/                         # FastAPI application
+│   ├── main.py                  # FastAPI entry point
+│   ├── config.py                # App configuration
+│   ├── schemas.py               # Pydantic data models
 │   ├── routers/
-│   │   └── ws_chat.py          # WebSocket chat router
-│   ├── services/               # Core business logic
-│   │   ├── chatter_rag.py      # RAG chat service
-│   │   ├── embedder.py         # Document embedding service
-│   │   ├── retriever.py        # Document retrieval service
-│   │   └── qdrant_store.py     # Qdrant database operations
+│   │   └── ws_chat.py           # WebSocket chat router
+│   ├── services/                # Core business logic
+│   │   ├── embedder.py          # Document embedding service
+│   │   ├── generator.py         # LLM response generation
+│   │   ├── haystack_pipeline.py # Haystack pipeline management
+│   │   ├── memory_summarizer.py # Chat history summarization
+│   │   ├── qdrant_store.py      # Qdrant database operations
+│   │   └── retriever.py         # Document retrieval service
 │   ├── state/
-│   │   └── session_store.py    # Session management
+│   │   └── session_store.py     # Session management
 │   ├── utils/
 │   │   └── logging.py          # Logging utilities
 │   └── testing/                # Testing scripts
-│       ├── test.py             # WebSocket client test
+│       ├── smoke_test.py       # Simple WebSocket test
 │       ├── chat_history.py     # Chat history tests
 │       └── embedder.py         # Embedding tests
 ├── qdrant_store/               # Qdrant vector database files
-└── well-bot_venv/              # Python virtual environment
+└── well-bot_venv/              # Python virtual environment 
 ```
 
 ### Main Components
-- **backend/**: Original standalone scripts for RAG functionality
-  - **chatter_rag.py**: CLI conversational loop with chat logging
-  - **retriever.py**: Document retrieval using Qdrant and Ollama embeddings
 - **app/**: FastAPI web application with WebSocket support
   - **main.py**: FastAPI server entry point
   - **routers/ws_chat.py**: WebSocket chat endpoint
-  - **services/**: Core business logic (chatter_rag, embedder, retriever, qdrant_store)
-  - **testing/**: WebSocket client tests and embedding tests
+  - **services/**: Core business logic
+    - **embedder.py**: Document embedding using Ollama
+    - **generator.py**: LLM response generation
+    - **haystack_pipeline.py**: Haystack pipeline orchestration
+    - **memory_summarizer.py**: Chat history summarization
+    - **qdrant_store.py**: Vector database operations
+    - **retriever.py**: Document retrieval and search
+  - **testing/**: Test scripts including smoke_test.py for WebSocket testing
 
 ## Technical Architecture
 1. **Document Embedding**: Text files in `context_doc/` are embedded using Ollama and stored in Qdrant vector database.

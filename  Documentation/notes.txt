@@ -1,0 +1,38 @@
+
+# 1. Clone the repository
+git clone https://github.com/eefei22/Well-Bot_RAG2.git
+cd Well-Bot_RAG
+
+# 2. Set up Python virtual environment
+python -m venv well-bot_venv
+.\well-bot_venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+
+# 3. Start Qdrant (Vector DB)
+docker run -p 6333:6333 -p 6334:6334 `
+  -v "<<storage path>>" `
+  qdrant/qdrant
+  
+
+
+# 4. Start Ollama (LLM server)
+#    - Download and install from https://ollama.com
+#    - Pull model for chat:
+ollama pull gemma3
+#    - Optional: pull model for embeddings (e.g., nomic-embed-text)
+
+# 5. Prepare context documents
+#    - Place .txt files in context_doc/
+
+# 6. Embed documents (only needed first time or when docs change)
+python app/services/embedder.py
+
+# 7. Start the FastAPI server
+uvicorn app.main:app --reload
+
+# 8. Test WebSocket Chat
+python app/testing/test.py
+
+
+
+Go to: http://localhost:6333/dashboard#/collections to inspect the vector database collections and index

@@ -21,7 +21,7 @@ document_store = QdrantDocumentStore(
 # Initialize once outside the loop
 prompt_builder = ChatPromptBuilder()
 generator = OllamaChatGenerator(
-    model="gemma3",
+    model="gemma3",                     #try with llama2-chinese
     url="http://localhost:11434", 
     generation_kwargs={"temperature": 0.9},
 )
@@ -44,11 +44,11 @@ while True:
     # Build prompt with context and history
     messages = [
         ChatMessage.from_system(
-            "Responses should only asnwer to user's query, do not mention anything unnecessary"
+            f"Responses should only asnwer to user's query, do not mention anything unnecessary"
             f"Response MUST not exceed 200 words"
             f"Do not ever use emojis. "
             f"Use a friendly and empathetic tone in all replies."
-            f"You are talking to your owner, Alex"
+            f"You are Well-Bot and You are talking to your owner, Alex"
             f"Here is extra context: {context}"),
         ChatMessage.from_user(user_query),
     ]
@@ -58,7 +58,7 @@ while True:
     )
 
     reply_text = result["llm"]["replies"][0].text
-    print("\n\nWell-Bot Copy:", reply_text)
+    print("\n\n Copy:", reply_text)
 
     now = datetime.now(timezone(timedelta(hours=8))).isoformat()
     chat_docs = [
@@ -71,21 +71,24 @@ while True:
     # reply = result["llm"]["replies"][0].text
     # print("\nWell-Bot:", reply)
 
+
 # ================================================================
 # DEPENDENCIES REQUIRED:
 # ================================================================
 # haystack
-# haystack-integrations
-# ollama (Ollama server running at localhost:11434)
+# haystack-integrations (Ollama, Qdrant)
+# ollama (Ollama server running at http://localhost:11434)
+# qdrant (vector DB running at http://localhost:6333)
 # retriever.py (local module)
 #
 # ================================================================
 # WORKFLOW SUMMARY:
 # ================================================================
 # 1. User inputs a query.
-# 2. The query is passed to `retrieve_top_document` to fetch relevant context.
+# 2. The query is passed to `retrieve_top_document` to fetch relevant context from Qdrant.
 # 3. A prompt is built using the context and user query, with system instructions.
 # 4. The prompt is sent to the OllamaChatGenerator (LLM) via a Haystack pipeline.
-# 5. The LLM generates a response, streamed to the console.
-# 6. The conversation continues until the user types 'exit'.
+# 5. The LLM generates a response, which is printed to the console.
+# 6. Both user query and bot reply are logged as documents in the Qdrant vector database (chat_history index).
+# 7. The conversation continues until the user types 'exit'.
 

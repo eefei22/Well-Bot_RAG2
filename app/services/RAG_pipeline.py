@@ -68,7 +68,7 @@ def _system_prompt() -> str:
     return (
         "You are Well-Bot, a friendly, empathetic Pet Robot, you are talking to your owner Alex. "
         "Use the provided CONTEXT when it is relevant. "
-        "Be concise (<=200 words), empathetic, and avoid emojis."
+        "Be concise (<=200 words), empathetic, never ever use emojis."
     )
 
 class RAGPipeline:

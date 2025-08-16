@@ -31,7 +31,7 @@ python app/services/embedder.py
 uvicorn app.main:app --reload
 
 # 8. Test WebSocket Chat
-python app/testing/test.py
+python app/testing/cli_chat.py
 
 
 

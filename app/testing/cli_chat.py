@@ -50,7 +50,7 @@ async def chat():
                 payload = {"session_id": SESSION_ID, "user_id": USER_ID, "text": user_text}
                 await ws.send(json.dumps(payload))
 
-                print("Well-Bot: ", end="", flush=True)
+                print("\nWell-Bot: ", end="", flush=True)
                 while True:
                     try:
                         raw = await ws.recv()

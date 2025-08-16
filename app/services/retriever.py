@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from haystack import Document
 from haystack_integrations.components.embedders.ollama.text_embedder import (
@@ -16,7 +16,6 @@ from haystack_integrations.document_stores.qdrant import QdrantDocumentStore
 
 from app.config import settings
 from app.utils.logging import get_logger
-from typing import Optional, Dict, Any, List
 
 logger = get_logger(__name__)
 
@@ -50,7 +49,7 @@ def build_filters(
         {"field": "meta.timestamp_epoch", "operator": ">=", "value": 1723180800.0},
       ]
     }
-    Return None if no conditions (avoid passing {})
+    Return None if no conditions (avoid passing {}).
     """
     conditions: List[Dict[str, Any]] = []
     if user_id:
@@ -63,7 +62,6 @@ def build_filters(
     if not conditions:
         return None
     return {"operator": "AND", "conditions": conditions}
-
 
 
 @dataclass
@@ -95,12 +93,12 @@ class DualRetriever:
         self.kb_retriever = QdrantEmbeddingRetriever(document_store=self.kb_store)
         self.mem_retriever = QdrantEmbeddingRetriever(document_store=self.mem_store)
 
-    def _embed_query(self, query: str) -> list[float]:
+    def _embed_query(self, query: str) -> List[float]:
         out = self.text_embedder.run(text=query)
         emb = out.get("embedding")
         if not emb:
             raise RuntimeError("Failed to compute query embedding.")
-        return emb
+        return emb  # type: ignore[return-value]
 
     def _retrieve_direct(
         self,
@@ -108,12 +106,12 @@ class DualRetriever:
         *,
         query_embedding: List[float],
         top_k: int,
-        filters: Dict,
+        filters: Optional[Dict[str, Any]] = None,
     ) -> List[Document]:
         out = retriever.run(
             query_embedding=query_embedding,
             top_k=top_k,
-            filters=filters,
+            filters=filters or None,
         )
         return out.get("documents", [])
 
@@ -121,11 +119,10 @@ class DualRetriever:
         self,
         *,
         query: str,
-        user_filters: Dict,
-        kb_filters: Optional[Dict] = None,
+        user_filters: Optional[Dict[str, Any]],
+        kb_filters: Optional[Dict[str, Any]] = None,
     ) -> Tuple[List[Document], List[Document]]:
         """Run both retrievers and return (kb_docs, user_memory_docs)."""
-        kb_filters = kb_filters or {}
         q_emb = self._embed_query(query)
 
         kb_docs = self._retrieve_direct(

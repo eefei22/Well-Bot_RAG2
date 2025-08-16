@@ -1,14 +1,13 @@
-#app/services/haystack_pipeline.py
+# app/services/RAG_pipeline.py
 
 from __future__ import annotations
 
 import time
 from datetime import datetime, timezone, timedelta
-from typing import Callable, Dict, List, Tuple
+from typing import Callable, Dict, List, Tuple, Sequence, TypedDict, Optional
 
 from haystack.dataclasses import ChatMessage
 from haystack import Document
-from datetime import datetime, timezone, timedelta
 
 from app.config import settings
 from app.utils.logging import get_logger
@@ -18,9 +17,8 @@ from app.services.retriever import (
     RetrieverConfig,
     build_filters,
 )
-from app.utils.prompts import build_system
-# add at top
-from typing import Sequence, TypedDict, Optional
+
+logger = get_logger(__name__)
 
 class HistMsg(TypedDict):
     role: str  # "user" | "assistant"
@@ -29,7 +27,8 @@ class HistMsg(TypedDict):
 def _history_to_messages(history: Sequence[HistMsg], max_chars: int = 1200) -> list[ChatMessage]:
     msgs: list[ChatMessage] = []
     used = 0
-    for h in history[-10:]:  # last 10 turns (user/assistant = ~20 msgs)
+    # Take last ~10 messages worth of turns, capped to ~1200 chars
+    for h in history[-10:]:
         txt = (h.get("content") or "").strip()
         if not txt:
             continue
@@ -43,29 +42,21 @@ def _history_to_messages(history: Sequence[HistMsg], max_chars: int = 1200) -> l
             msgs.append(ChatMessage.from_user(txt))
     return msgs
 
-
-logger = get_logger(__name__)
-
-def _epoch_now() -> float:
-    return datetime.now(timezone.utc).timestamp()
-
 def _epoch_minutes_back(minutes: int) -> float:
     return (datetime.now(timezone.utc) - timedelta(minutes=minutes)).timestamp()
 
 def _format_context(docs: List[Document], max_chars: int = 1800) -> str:
     """
     Join snippets from retrieved docs into a compact context block for the prompt.
-    Trim aggressively to keep LLM focused (real UIs can show full context separately).
     """
-    parts = []
+    parts: List[str] = []
     used = 0
     for d in docs:
         src = d.meta.get("source") or d.meta.get("name") or d.id[:8]
         chunk = (d.content or "").strip()
         if not chunk:
             continue
-        # prefer shorter, dense chunks
-        chunk = chunk[:600]
+        chunk = chunk[:600]  # prefer shorter, dense chunks
         line = f"[{src}] {chunk}"
         if used + len(line) > max_chars:
             break
@@ -74,20 +65,15 @@ def _format_context(docs: List[Document], max_chars: int = 1800) -> str:
     return "\n".join(parts)
 
 def _system_prompt() -> str:
-    """
-    Lightweight system prompt; we’ll move this to utils/prompts.py later.
-    """
     return (
-        "You are Well‑Bot, a friendly, precise assistant. "
+        "You are Well-Bot, a friendly, empathetic Pet Robot, you are talking to your owner Alex. "
         "Use the provided CONTEXT when it is relevant. "
         "Be concise (<=200 words), empathetic, and avoid emojis."
     )
 
-
 class RAGPipeline:
     """
-    Orchestrates two-stage retrieval (KB + user memory) and chat generation with streaming.
-    This object is long-lived (create once at app startup).
+    Two-stage retrieval (KB + user memory) + chat generation with token streaming.
     """
 
     def __init__(
@@ -95,7 +81,7 @@ class RAGPipeline:
         *,
         kb_top_k: int = 4,
         mem_top_k: int = 4,
-        mem_time_window_min: int | None = 7 * 24 * 60,  # last 7 days default
+        mem_time_window_min: int | None = 7 * 24 * 60,  # last 7 days by default; set None for no limit
     ) -> None:
         self.dual_ret = DualRetriever(
             kb_cfg=RetrieverConfig(collection=settings.qdrant_collection_docs, top_k=kb_top_k),
@@ -108,26 +94,30 @@ class RAGPipeline:
         self,
         *,
         user_id: str,
-        session_id: str,
+        session_id: str,  # still passed for telemetry/meta, but not used for memory filtering anymore
         query: str,
-        history: Optional[Sequence[HistMsg]] = None,   # <— NEW
+        history: Optional[Sequence[HistMsg]] = None,
         on_token: Callable[[str], None] | None = None,
     ) -> Tuple[str, Dict]:
         """
         Execute retrieval + generation. Streams tokens via on_token.
-        Returns:
-            final_text, meta (retrieval list + usage)
+        Returns: (final_text, meta)
         """
         t0 = time.perf_counter()
 
         # --- Build filters ---
-        min_ts_epoch = _epoch_minutes_back(self.mem_time_window_min) if self.mem_time_window_min else None
+        # Cross-session recall: filter persistent user memory by user_id (+ optional recency), NOT session_id.
+        min_ts_epoch = (
+            _epoch_minutes_back(self.mem_time_window_min)
+            if self.mem_time_window_min is not None
+            else None
+        )
         mem_filters = build_filters(
             user_id=user_id,
-            session_id=session_id,
+            # session_id=session_id,  # intentionally omitted for cross-session recall
             min_timestamp_epoch=min_ts_epoch,
         )
-        kb_filters = None
+        kb_filters = None  # widen as needed
 
         # --- Retrieve ---
         kb_docs, mem_docs = self.dual_ret.retrieve(
@@ -138,7 +128,9 @@ class RAGPipeline:
         # --- Build prompt ---
         ctx_block = _format_context(all_docs)
         sys = _system_prompt()
-        messages: List[ChatMessage] = [ChatMessage.from_system(f"{sys}\n\nCONTEXT:\n{ctx_block}" if ctx_block else sys)]
+        messages: List[ChatMessage] = [
+            ChatMessage.from_system(f"{sys}\n\nCONTEXT:\n{ctx_block}" if ctx_block else sys)
+        ]
 
         if history:
             messages.extend(_history_to_messages(history))
@@ -149,8 +141,9 @@ class RAGPipeline:
         final_text, usage = self.generator.stream_chat(messages, on_token=on_token)
 
         latency_ms = int((time.perf_counter() - t0) * 1000)
-        # --- Meta to report back to client ---
-        retrieval_meta = []
+
+        # --- Meta (observability) ---
+        retrieval_meta: List[Dict] = []
         for d in mem_docs:
             retrieval_meta.append(
                 {
@@ -181,7 +174,6 @@ class RAGPipeline:
             "usage": {
                 "model": usage.get("model"),
                 "latency_ms": latency_ms,
-                # token counts can be added later once exposed
             },
         }
 

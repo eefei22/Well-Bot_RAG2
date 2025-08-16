@@ -79,9 +79,9 @@ uvicorn app.main:app --reload
 ---
 
 ## 5. Usage Example
-**Smoke test**:
+**Multi-turn chat conversation**
 ```bash
-python app/testing/smoke_test.py
+python app/testing/cli_chat.py
 ```
 **Multi-turn memory example**:
 ```
